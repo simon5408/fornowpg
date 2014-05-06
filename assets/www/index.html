@@ -11,6 +11,73 @@
 <script type="text/javascript" charset="utf-8" src="../js/phonegap/cordova.js"></script>
 <script type="text/javascript" charset="utf-8" src="../js/jquery/jquery.js"></script>
 <script type="text/javascript" charset="utf-8" src="../js/jquery/jquery.mobile-1.4.2.min.js"></script>
+
+<script type="text/javascript">
+	document.addEventListener("deviceready", onDeviceReady, false);
+	
+	function onDeviceReady(){
+		var db = window.openDatabase("test", "1.0", "Test DB", 1000000);
+		
+		db.transaction(populateDB, errorCB, successCB);
+	}
+	
+	// insert Database 
+	function populateDB(tx) {
+		tx.executeSql('DROP TABLE DEMO IF EXISTS');
+		tx.executeSql('CREATE TABLE DEMO (id unique, data)');
+		tx.executeSql('INSERT INTO DEMO (id, data) VALUES (1, "First row")');
+		tx.executeSql('INSERT INTO DEMO (id, data) VALUES (2, "Second row")');
+	}
+	
+	function errorCB(tx, err) {
+		alert("Error processing SQL: "+err);
+	}
+	
+	// 事务执行成功后调用的回调函数 
+	function successCB() {
+		alert("success!");
+	}
+	
+	function queryDB(tx) {
+		tx.executeSql('SELECT * FROM DEMO', [], querySuccess, errorCB);
+	}
+
+	function querySuccess(tx, results) {
+		// 因为没有插入记录,所以返回值为空 
+		console.log("Insert ID = " + results.insertId);
+		// 因为这是一条查询语句所以返回值为0 
+		console.log("Rows Affected = " + results.rowAffected);
+		// 返回查询到的记录行数量
+		console.log("Insert length = " + results.rows.length);
+	}
+
+	
+	function alertDismissed(){
+		alert("alertDismissed");
+	}
+	
+	function showAlert(){
+		navigator.notification.alert(
+				'You are the winner!', // message 
+				alertDismissed, // callback 
+				'Game Over', // title 
+				'Done' // button 
+		);
+	}
+	
+	function onConfirm(button){
+		alert('You selectd button: ' + button);
+	}
+	
+	function showConfirm(){
+		navigator.notification.confirm(
+				'You are the winner!',
+				onConfirm,
+				'Game Over',
+				'Resert, Exit'
+		)
+	}
+</script>
 </head>
 
 <body>
@@ -24,6 +91,10 @@
 				<input type="text" name="username" id="username" value="" placeholder="please insert username" /> 
 				<label for="password">Password: </label>
 				<input type="password" name="password" id="password" value="" placeholder="please insert password" />
+			</div>
+			<div>
+				<button onclick="showAlert(); return false;">Show Alert</button>
+				<button onclick="showConfirm(); return false;">Show Confirm</button>
 			</div>
 		</div>
 		<div data-role="footer">
